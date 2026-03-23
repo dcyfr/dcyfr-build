@@ -1,0 +1,74 @@
+[
+  {
+    "id": "docker-nextjs-standalone",
+    "name": "Docker Next.js Standalone",
+    "slug": "docker-nextjs-standalone",
+    "description": "Multi-stage Docker build for Next.js with standalone output. Minimal production image under 200MB.",
+    "category": "docker",
+    "difficulty": "intermediate",
+    "stack": ["Next.js", "Docker", "Node.js"],
+    "tags": ["nextjs", "docker", "standalone", "multi-stage"],
+    "estimatedMonthlyCost": 15,
+    "content": "# syntax=docker/dockerfile:1\nFROM node:20-alpine AS base\n\n# Install dependencies only when needed\nFROM base AS deps\nRUN apk add --no-cache libc6-compat\nWORKDIR /app\n\nCOPY package.json package-lock.json* ./\nRUN npm ci --omit=dev\n\n# Build the source code\nFROM base AS builder\nWORKDIR /app\nCOPY --from=deps /app/node_modules ./node_modules\nCOPY . .\n\nENV NEXT_TELEMETRY_DISABLED=1\nRUN npm run build\n\n# Production image — copy only the standalone output\nFROM base AS runner\nWORKDIR /app\n\nENV NODE_ENV=production\nENV NEXT_TELEMETRY_DISABLED=1\n\nRUN addgroup --system --gid 1001 nodejs\nRUN adduser --system --uid 1001 nextjs\n\nCOPY --from=builder /app/public ./public\n\n# Leverage output traces to reduce image size\nCOPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./\nCOPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static\n\nUSER nextjs\n\nEXPOSE 3000\nENV PORT=3000\nENV HOSTNAME=\"0.0.0.0\"\n\nCMD [\"node\", \"server.js\"]"
+  },
+  {
+    "id": "k8s-nextjs-deployment",
+    "name": "Kubernetes Next.js Deployment",
+    "slug": "k8s-nextjs-deployment",
+    "description": "Production Kubernetes Deployment + Service + HPA for Next.js. Includes resource limits, health checks, and rolling update strategy.",
+    "category": "kubernetes",
+    "difficulty": "advanced",
+    "stack": ["Next.js", "Kubernetes", "Docker"],
+    "tags": ["kubernetes", "k8s", "nextjs", "hpa", "deployment"],
+    "estimatedMonthlyCost": 80,
+    "content": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: nextjs-app\n  namespace: production\n  labels:\n    app: nextjs-app\n    version: \"1.0\"\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: nextjs-app\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 1\n      maxUnavailable: 0\n  template:\n    metadata:\n      labels:\n        app: nextjs-app\n    spec:\n      containers:\n        - name: nextjs\n          image: ghcr.io/your-org/nextjs-app:latest\n          ports:\n            - containerPort: 3000\n          env:\n            - name: NODE_ENV\n              value: production\n          resources:\n            requests:\n              cpu: \"100m\"\n              memory: \"256Mi\"\n            limits:\n              cpu: \"500m\"\n              memory: \"512Mi\"\n          livenessProbe:\n            httpGet:\n              path: /api/health\n              port: 3000\n            initialDelaySeconds: 15\n            periodSeconds: 20\n          readinessProbe:\n            httpGet:\n              path: /api/health\n              port: 3000\n            initialDelaySeconds: 5\n            periodSeconds: 10\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: nextjs-app\n  namespace: production\nspec:\n  selector:\n    app: nextjs-app\n  ports:\n    - protocol: TCP\n      port: 80\n      targetPort: 3000\n---\napiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: nextjs-app\n  namespace: production\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: nextjs-app\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n    - type: Resource\n      resource:\n        name: cpu\n        target:\n          type: Utilization\n          averageUtilization: 70"
+  },
+  {
+    "id": "github-actions-nextjs-ci",
+    "name": "GitHub Actions Next.js CI",
+    "slug": "github-actions-nextjs-ci",
+    "description": "Complete CI pipeline for Next.js: typecheck, lint, test, and build with caching. Runs on PRs and main branch pushes.",
+    "category": "ci-cd",
+    "difficulty": "intermediate",
+    "stack": ["Next.js", "GitHub Actions", "Node.js"],
+    "tags": ["github-actions", "ci", "nextjs", "typescript", "testing"],
+    "estimatedMonthlyCost": 0,
+    "content": "name: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  quality:\n    name: Quality Checks\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n          cache: 'npm'\n\n      - name: Install dependencies\n        run: npm ci\n\n      - name: Type check\n        run: npm run typecheck\n\n      - name: Lint\n        run: npm run lint\n\n      - name: Test\n        run: npm test -- --ci --coverage\n\n  build:\n    name: Build\n    runs-on: ubuntu-latest\n    needs: quality\n    steps:\n      - uses: actions/checkout@v4\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n          cache: 'npm'\n\n      - name: Install dependencies\n        run: npm ci\n\n      - name: Build\n        run: npm run build\n        env:\n          NEXT_TELEMETRY_DISABLED: 1\n\n      - name: Upload build artifact\n        uses: actions/upload-artifact@v4\n        with:\n          name: nextjs-build\n          path: .next/\n          retention-days: 7"
+  },
+  {
+    "id": "github-actions-npm-publish",
+    "name": "GitHub Actions npm Publish",
+    "slug": "github-actions-npm-publish",
+    "description": "Automated npm package publishing with Changesets. Handles versioning, changelogs, and GitHub releases on merge to main.",
+    "category": "ci-cd",
+    "difficulty": "intermediate",
+    "stack": ["Node.js", "GitHub Actions", "Changesets", "npm"],
+    "tags": ["github-actions", "npm", "publish", "changesets", "release"],
+    "estimatedMonthlyCost": 0,
+    "content": "name: Release\n\non:\n  push:\n    branches:\n      - main\n\nconcurrency: ${{ github.workflow }}-${{ github.ref }}\n\njobs:\n  release:\n    name: Release\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n      pull-requests: write\n      id-token: write\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n          cache: 'npm'\n          registry-url: 'https://registry.npmjs.org'\n\n      - name: Install dependencies\n        run: npm ci\n\n      - name: Build packages\n        run: npm run build\n\n      - name: Create Release Pull Request or Publish\n        uses: changesets/action@v1\n        with:\n          publish: npm run release\n          title: 'chore: version packages'\n          commit: 'chore: version packages'\n        env:\n          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}\n          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}"
+  },
+  {
+    "id": "docker-compose-dev-stack",
+    "name": "Docker Compose Dev Stack",
+    "slug": "docker-compose-dev-stack",
+    "description": "Local development stack with Next.js app, PostgreSQL, Redis, and pgAdmin. Hot reload enabled with volume mounts.",
+    "category": "docker",
+    "difficulty": "beginner",
+    "stack": ["Next.js", "Docker Compose", "PostgreSQL", "Redis"],
+    "tags": ["docker-compose", "postgres", "redis", "local-dev", "hot-reload"],
+    "estimatedMonthlyCost": 0,
+    "content": "services:\n  app:\n    build:\n      context: .\n      dockerfile: Dockerfile.dev\n    ports:\n      - '3000:3000'\n    volumes:\n      - .:/app\n      - /app/node_modules\n      - /app/.next\n    environment:\n      - DATABASE_URL=postgresql://postgres:postgres@db:5432/myapp\n      - REDIS_URL=redis://cache:6379\n      - NODE_ENV=development\n    depends_on:\n      db:\n        condition: service_healthy\n      cache:\n        condition: service_started\n\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_USER: postgres\n      POSTGRES_PASSWORD: postgres\n      POSTGRES_DB: myapp\n    ports:\n      - '5432:5432'\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n    healthcheck:\n      test: ['CMD-SHELL', 'pg_isready -U postgres']\n      interval: 5s\n      timeout: 5s\n      retries: 5\n\n  cache:\n    image: redis:7-alpine\n    ports:\n      - '6379:6379'\n    volumes:\n      - redis_data:/data\n\n  pgadmin:\n    image: dpage/pgadmin4:latest\n    environment:\n      PGADMIN_DEFAULT_EMAIL: admin@local.dev\n      PGADMIN_DEFAULT_PASSWORD: admin\n    ports:\n      - '5050:80'\n    depends_on:\n      - db\n\nvolumes:\n  postgres_data:\n  redis_data:"
+  },
+  {
+    "id": "k8s-ingress-tls",
+    "name": "Kubernetes Ingress with TLS",
+    "slug": "k8s-ingress-tls",
+    "description": "Kubernetes Ingress with cert-manager for automatic TLS certificate provisioning via Let's Encrypt. Includes NGINX ingress class.",
+    "category": "kubernetes",
+    "difficulty": "advanced",
+    "stack": ["Kubernetes", "cert-manager", "NGINX", "Let's Encrypt"],
+    "tags": ["kubernetes", "ingress", "tls", "cert-manager", "lets-encrypt"],
+    "estimatedMonthlyCost": 0,
+    "content": "# ClusterIssuer for Let's Encrypt production\napiVersion: cert-manager.io/v1\nkind: ClusterIssuer\nmetadata:\n  name: letsencrypt-prod\nspec:\n  acme:\n    server: https://acme-v02.api.letsencrypt.org/directory\n    email: ops@example.com\n    privateKeySecretRef:\n      name: letsencrypt-prod\n    solvers:\n      - http01:\n          ingress:\n            ingressClassName: nginx\n---\n# Ingress with automatic TLS\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: nextjs-ingress\n  namespace: production\n  annotations:\n    cert-manager.io/cluster-issuer: letsencrypt-prod\n    nginx.ingress.kubernetes.io/ssl-redirect: 'true'\n    nginx.ingress.kubernetes.io/proxy-body-size: '10m'\nspec:\n  ingressClassName: nginx\n  tls:\n    - hosts:\n        - example.com\n        - www.example.com\n      secretName: example-tls\n  rules:\n    - host: example.com\n      http:\n        paths:\n          - path: /\n            pathType: Prefix\n            backend:\n              service:\n                name: nextjs-app\n                port:\n                  number: 80\n    - host: www.example.com\n      http:\n        paths:\n          - path: /\n            pathType: Prefix\n            backend:\n              service:\n                name: nextjs-app\n                port:\n                  number: 80"
+  }
+]
