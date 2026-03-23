@@ -43,7 +43,7 @@ export default function TemplatesPage() {
   });
 
   const btnBase = 'px-4 py-1.5 rounded-full text-sm font-medium border transition-colors';
-  const btnActive = 'bg-emerald-600 border-emerald-500 text-white';
+  const btnActive = 'bg-emerald-700 border-emerald-600 text-white';
   const btnInactive = 'bg-emerald-900/20 border-emerald-700/40 text-emerald-400 hover:text-emerald-200 hover:border-emerald-600/60';
 
   return (
