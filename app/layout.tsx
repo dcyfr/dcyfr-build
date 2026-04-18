@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
+import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -14,8 +15,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning className="theme-dcyfr-build">
       <body className={`${inter.className} bg-emerald-950 text-emerald-50 min-h-screen flex flex-col`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <header className="border-b border-emerald-800/50 bg-emerald-950/80 backdrop-blur-sm sticky top-0 z-50">
           <nav
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
@@ -39,6 +41,7 @@ export default function RootLayout({
             <p className="text-emerald-500">dcyfr.build — infrastructure for AI-powered apps</p>
           </div>
         </footer>
+        </ThemeProvider>
       </body>
     </html>
   );
