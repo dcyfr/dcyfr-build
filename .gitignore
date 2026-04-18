@@ -1,2 +1,8 @@
 node_modules/
 .next/
+.vercel/
+
+# Playwright artifacts (keep e2e/snapshots.spec.ts-snapshots/ — those are baselines)
+test-results/
+playwright-report/
+playwright/.cache/
