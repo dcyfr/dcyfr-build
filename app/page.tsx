@@ -2,6 +2,8 @@ import Link from 'next/link';
 import type { InfraTemplate } from '@/lib/types';
 import templatesData from '@/data/templates.json';
 import { TemplateCard } from '@/components/TemplateCard';
+import { DcyfrButton } from '@/components/ui/dcyfr-button';
+import { DcyfrBadge } from '@/components/ui/dcyfr-badge';
 
 const templates = templatesData as InfraTemplate[];
 
@@ -23,10 +25,17 @@ export default function HomePage() {
       <section className="relative overflow-hidden border-b border-emerald-800/40">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-emerald-950 to-teal-950" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
-          <div className="inline-flex items-center gap-2 bg-emerald-800/40 border border-emerald-600/40 rounded-full px-4 py-1.5 text-sm text-emerald-300 mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+          <DcyfrBadge
+            variant="success"
+            size="md"
+            className="mb-8 rounded-full border-emerald-600/40 bg-emerald-800/40 text-emerald-300"
+          >
+            <span
+              className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+              aria-hidden="true"
+            />
             6 Templates Available Now
-          </div>
+          </DcyfrBadge>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             Ship infrastructure{' '}
             <span className="text-emerald-400">faster.</span>
@@ -36,18 +45,12 @@ export default function HomePage() {
             All MIT licensed, production-validated, with a built-in cost estimator.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/templates"
-              className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
-            >
-              Browse Templates
-            </Link>
-            <Link
-              href="/cost-estimator"
-              className="inline-flex items-center gap-2 border border-emerald-600/60 hover:border-emerald-500 text-emerald-300 hover:text-emerald-100 font-semibold px-8 py-3 rounded-lg transition-colors"
-            >
-              Estimate Costs
-            </Link>
+            <DcyfrButton asChild variant="brand" size="lg">
+              <Link href="/templates">Browse Templates</Link>
+            </DcyfrButton>
+            <DcyfrButton asChild variant="ghostly" size="lg">
+              <Link href="/cost-estimator">Estimate Costs</Link>
+            </DcyfrButton>
           </div>
         </div>
       </section>
@@ -63,7 +66,13 @@ export default function HomePage() {
           ].map(({ value, label }) => (
             <div key={label}>
               <p className="text-2xl font-bold text-emerald-300">{value}</p>
-              <p className="text-sm text-emerald-500 mt-1">{label}</p>
+              <DcyfrBadge
+                variant="info"
+                size="sm"
+                className="mt-1 border-0 bg-transparent text-emerald-500"
+              >
+                {label}
+              </DcyfrBadge>
             </div>
           ))}
         </div>
@@ -91,9 +100,11 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-emerald-100">Recent Templates</h2>
-          <Link href="/templates" className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
-            View all {templates.length} →
-          </Link>
+          <DcyfrButton asChild variant="ghostly" size="sm">
+            <Link href="/templates" className="text-emerald-400">
+              View all {templates.length} →
+            </Link>
+          </DcyfrButton>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {recent.map((t) => <TemplateCard key={t.id} template={t} compact />)}
