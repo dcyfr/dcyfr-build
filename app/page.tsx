@@ -26,7 +26,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-emerald-950 to-teal-950" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
           <DcyfrBadge
-            variant="success"
+            variant="info"
             size="md"
             className="mb-8 rounded-full border-emerald-600/40 bg-emerald-800/40 text-emerald-300"
           >
