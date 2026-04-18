@@ -1,0 +1,49 @@
+"use client"
+
+import * as React from "react"
+import { useTheme } from "next-themes"
+import { Toaster as Sonner, type ToasterProps } from "sonner"
+
+/**
+ * Brand-themed sonner `<Toaster />`. Toast callers import `toast()` from `sonner`
+ * directly; this wrapper only supplies the DCYFR theme + structural classes.
+ */
+function DcyfrToaster({ ...props }: ToasterProps) {
+  const { theme = "system" } = useTheme()
+
+  return (
+    <Sonner
+      theme={theme as ToasterProps["theme"]}
+      className="toaster group"
+      toastOptions={{
+        classNames: {
+          toast:
+            "group toast group-[.toaster]:bg-popover group-[.toaster]:text-popover-foreground group-[.toaster]:border group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:backdrop-blur",
+          description: "group-[.toast]:text-muted-foreground",
+          actionButton:
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+          cancelButton:
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          success:
+            "group-[.toast]:!border-success/40 group-[.toast]:!bg-success/5 group-[.toast]:!text-success",
+          error:
+            "group-[.toast]:!border-destructive/50 group-[.toast]:!bg-destructive/5 group-[.toast]:!text-destructive",
+          warning:
+            "group-[.toast]:!border-warning/40 group-[.toast]:!bg-warning/5 group-[.toast]:!text-warning",
+          info:
+            "group-[.toast]:!border-secure/30 group-[.toast]:!bg-secure/5 group-[.toast]:!text-secure",
+        },
+      }}
+      style={
+        {
+          "--normal-bg": "hsl(var(--popover))",
+          "--normal-text": "hsl(var(--popover-foreground))",
+          "--normal-border": "hsl(var(--border))",
+        } as React.CSSProperties
+      }
+      {...props}
+    />
+  )
+}
+
+export { DcyfrToaster }

@@ -1,7 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { CopyIcon, RotateCcwIcon } from 'lucide-react';
 import type { InfraTemplate, CostLine } from '@/lib/types';
+import { DcyfrCard } from '@/components/ui/dcyfr-card';
+import { DcyfrLabel } from '@/components/ui/dcyfr-label';
+import { DcyfrButton } from '@/components/ui/dcyfr-button';
+import { DcyfrProgress } from '@/components/ui/dcyfr-progress';
+import {
+  DcyfrSelect,
+  DcyfrSelectContent,
+  DcyfrSelectItem,
+  DcyfrSelectTrigger,
+  DcyfrSelectValue,
+} from '@/components/ui/dcyfr-select';
 
 interface Props {
   templates: InfraTemplate[];
@@ -11,29 +24,39 @@ type Provider = 'aws' | 'gcp' | 'azure' | 'digitalocean' | 'fly';
 type Workload = 'small' | 'medium' | 'large';
 
 const PROVIDERS: Array<{ value: Provider; label: string }> = [
-  { value: 'aws',          label: 'AWS' },
-  { value: 'gcp',          label: 'GCP' },
-  { value: 'azure',        label: 'Azure' },
+  { value: 'aws', label: 'AWS' },
+  { value: 'gcp', label: 'GCP' },
+  { value: 'azure', label: 'Azure' },
   { value: 'digitalocean', label: 'DigitalOcean' },
-  { value: 'fly',          label: 'Fly.io' },
+  { value: 'fly', label: 'Fly.io' },
 ];
 
 const WORKLOADS: Array<{ value: Workload; label: string; desc: string }> = [
-  { value: 'small',  label: 'Small',  desc: '1 vCPU, 1GB RAM' },
+  { value: 'small', label: 'Small', desc: '1 vCPU, 1GB RAM' },
   { value: 'medium', label: 'Medium', desc: '2 vCPU, 4GB RAM' },
-  { value: 'large',  label: 'Large',  desc: '4 vCPU, 8GB RAM' },
+  { value: 'large', label: 'Large', desc: '4 vCPU, 8GB RAM' },
 ];
 
 // Base monthly costs per (provider, workload) in USD
 const BASE_COSTS: Record<Provider, Record<Workload, number>> = {
-  aws:          { small: 18,  medium: 65,  large: 180 },
-  gcp:          { small: 16,  medium: 60,  large: 170 },
-  azure:        { small: 20,  medium: 72,  large: 195 },
-  digitalocean: { small: 12,  medium: 48,  large: 130 },
-  fly:          { small: 8,   medium: 30,  large: 90  },
+  aws: { small: 18, medium: 65, large: 180 },
+  gcp: { small: 16, medium: 60, large: 170 },
+  azure: { small: 20, medium: 72, large: 195 },
+  digitalocean: { small: 12, medium: 48, large: 130 },
+  fly: { small: 8, medium: 30, large: 90 },
 };
 
-function buildLines(templateId: string, provider: Provider, workload: Workload): CostLine[] {
+// Soft budget threshold — progress bar shows total / this value, capped at 100%
+const BUDGET_CEILING = 300;
+
+const DEFAULT_PROVIDER: Provider = 'aws';
+const DEFAULT_WORKLOAD: Workload = 'small';
+
+function buildLines(
+  templateId: string,
+  provider: Provider,
+  workload: Workload
+): CostLine[] {
   const base = BASE_COSTS[provider][workload];
   const isK8s = templateId.startsWith('k8s');
   const isCompose = templateId === 'docker-compose-dev-stack';
@@ -58,79 +81,173 @@ function buildLines(templateId: string, provider: Provider, workload: Workload):
 }
 
 export function CostEstimator({ templates }: Readonly<Props>) {
-  const [templateId, setTemplateId] = useState(templates[0]?.id ?? '');
-  const [provider, setProvider] = useState<Provider>('aws');
-  const [workload, setWorkload] = useState<Workload>('small');
+  const defaultTemplate = templates[0]?.id ?? '';
+  const [templateId, setTemplateId] = useState(defaultTemplate);
+  const [provider, setProvider] = useState<Provider>(DEFAULT_PROVIDER);
+  const [workload, setWorkload] = useState<Workload>(DEFAULT_WORKLOAD);
 
-  const lines = buildLines(templateId, provider, workload);
-  const total = lines.reduce((sum, l) => sum + l.totalCost, 0);
+  const { lines, total, selectedTemplate } = useMemo(() => {
+    const ls = buildLines(templateId, provider, workload);
+    return {
+      lines: ls,
+      total: ls.reduce((sum, l) => sum + l.totalCost, 0),
+      selectedTemplate: templates.find((t) => t.id === templateId),
+    };
+  }, [templateId, provider, workload, templates]);
 
-  const selectClass = 'w-full bg-emerald-950/60 border border-emerald-700/40 rounded-lg px-3 py-2 text-sm text-emerald-200 focus:outline-none focus:border-emerald-500';
+  const budgetRatio = Math.min(100, Math.round((total / BUDGET_CEILING) * 100));
+  const budgetVariant: 'default' | 'danger' =
+    budgetRatio < 85 ? 'default' : 'danger';
+
+  const handleCopy = async () => {
+    const providerLabel = PROVIDERS.find((p) => p.value === provider)?.label ?? provider;
+    const workloadLabel = WORKLOADS.find((w) => w.value === workload)?.label ?? workload;
+    const body = [
+      `Cost breakdown — ${selectedTemplate?.name ?? templateId}`,
+      `Provider: ${providerLabel} · Workload: ${workloadLabel}`,
+      '',
+      ...lines.map(
+        (l) => `${l.service.padEnd(22)} $${l.totalCost.toFixed(2).padStart(8)}`
+      ),
+      ''.padEnd(33, '—'),
+      `${'Total / month'.padEnd(22)} $${total.toFixed(2).padStart(8)}`,
+    ].join('\n');
+
+    try {
+      await navigator.clipboard.writeText(body);
+      toast.success('Breakdown copied', {
+        description: 'Paste into your favorite editor.',
+      });
+    } catch {
+      toast.error('Copy failed', { description: 'Try again or copy manually.' });
+    }
+  };
+
+  const handleReset = () => {
+    setTemplateId(defaultTemplate);
+    setProvider(DEFAULT_PROVIDER);
+    setWorkload(DEFAULT_WORKLOAD);
+    toast.info('Reset to defaults');
+  };
 
   return (
-    <div className="bg-emerald-900/20 border border-emerald-700/30 rounded-xl p-6 sm:p-8">
-      <h2 className="text-xl font-semibold text-emerald-100 mb-6">Cost Estimator</h2>
+    <DcyfrCard variant="elevated" padding="lg" className="bg-emerald-900/20 border-emerald-700/30">
+      <div className="px-6 sm:px-8">
+        <h2 className="text-xl font-semibold text-emerald-100 mb-6">Cost Estimator</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div>
-          <label className="block text-xs text-emerald-500 uppercase tracking-wide mb-2">Template</label>
-          <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} className={selectClass}>
-            {templates.map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="space-y-2">
+            <DcyfrLabel htmlFor="template" className="text-emerald-500 text-xs uppercase tracking-wide">
+              Template
+            </DcyfrLabel>
+            <DcyfrSelect value={templateId} onValueChange={setTemplateId}>
+              <DcyfrSelectTrigger id="template" className="w-full border-emerald-700/40 bg-emerald-950/60 text-emerald-200">
+                <DcyfrSelectValue placeholder="Select a template" />
+              </DcyfrSelectTrigger>
+              <DcyfrSelectContent>
+                {templates.map((t) => (
+                  <DcyfrSelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </DcyfrSelectItem>
+                ))}
+              </DcyfrSelectContent>
+            </DcyfrSelect>
+          </div>
+          <div className="space-y-2">
+            <DcyfrLabel htmlFor="provider" className="text-emerald-500 text-xs uppercase tracking-wide">
+              Provider
+            </DcyfrLabel>
+            <DcyfrSelect value={provider} onValueChange={(v) => setProvider(v as Provider)}>
+              <DcyfrSelectTrigger id="provider" className="w-full border-emerald-700/40 bg-emerald-950/60 text-emerald-200">
+                <DcyfrSelectValue />
+              </DcyfrSelectTrigger>
+              <DcyfrSelectContent>
+                {PROVIDERS.map((p) => (
+                  <DcyfrSelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </DcyfrSelectItem>
+                ))}
+              </DcyfrSelectContent>
+            </DcyfrSelect>
+          </div>
+          <div className="space-y-2">
+            <DcyfrLabel htmlFor="workload" className="text-emerald-500 text-xs uppercase tracking-wide">
+              Workload Size
+            </DcyfrLabel>
+            <DcyfrSelect value={workload} onValueChange={(v) => setWorkload(v as Workload)}>
+              <DcyfrSelectTrigger id="workload" className="w-full border-emerald-700/40 bg-emerald-950/60 text-emerald-200">
+                <DcyfrSelectValue />
+              </DcyfrSelectTrigger>
+              <DcyfrSelectContent>
+                {WORKLOADS.map((w) => (
+                  <DcyfrSelectItem key={w.value} value={w.value}>
+                    {w.label} — {w.desc}
+                  </DcyfrSelectItem>
+                ))}
+              </DcyfrSelectContent>
+            </DcyfrSelect>
+          </div>
         </div>
-        <div>
-          <label className="block text-xs text-emerald-500 uppercase tracking-wide mb-2">Provider</label>
-          <select value={provider} onChange={(e) => setProvider(e.target.value as Provider)} className={selectClass}>
-            {PROVIDERS.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-emerald-500 uppercase tracking-wide mb-2">Workload Size</label>
-          <select value={workload} onChange={(e) => setWorkload(e.target.value as Workload)} className={selectClass}>
-            {WORKLOADS.map((w) => (
-              <option key={w.value} value={w.value}>{w.label} — {w.desc}</option>
-            ))}
-          </select>
-        </div>
-      </div>
 
-      <div className="border border-emerald-700/30 rounded-lg overflow-hidden mb-4">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-emerald-900/40 border-b border-emerald-800/40">
-              <th className="text-left px-4 py-3 text-emerald-400 font-medium">Service</th>
-              <th className="text-right px-4 py-3 text-emerald-400 font-medium">Unit Cost</th>
-              <th className="text-right px-4 py-3 text-emerald-400 font-medium">Units</th>
-              <th className="text-right px-4 py-3 text-emerald-400 font-medium">Monthly</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((line) => (
-              <tr key={line.service} className="border-b border-emerald-800/30">
-                <td className="px-4 py-3 text-emerald-200">{line.service}</td>
-                <td className="px-4 py-3 text-right text-emerald-400">${line.unitCost.toFixed(2)}</td>
-                <td className="px-4 py-3 text-right text-emerald-400">{line.units}</td>
-                <td className="px-4 py-3 text-right text-emerald-300 font-medium">${line.totalCost.toFixed(2)}</td>
+        <div className="border border-emerald-700/30 rounded-lg overflow-hidden mb-4">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-emerald-900/40 border-b border-emerald-800/40">
+                <th className="text-left px-4 py-3 text-emerald-400 font-medium">Service</th>
+                <th className="text-right px-4 py-3 text-emerald-400 font-medium">Unit Cost</th>
+                <th className="text-right px-4 py-3 text-emerald-400 font-medium">Units</th>
+                <th className="text-right px-4 py-3 text-emerald-400 font-medium">Monthly</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="bg-emerald-900/30">
-              <td colSpan={3} className="px-4 py-3 text-emerald-300 font-semibold">Estimated Total / Month</td>
-              <td className="px-4 py-3 text-right text-emerald-300 font-bold text-base">${total.toFixed(2)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {lines.map((line) => (
+                <tr key={line.service} className="border-b border-emerald-800/30">
+                  <td className="px-4 py-3 text-emerald-200">{line.service}</td>
+                  <td className="px-4 py-3 text-right text-emerald-400">${line.unitCost.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right text-emerald-400">{line.units}</td>
+                  <td className="px-4 py-3 text-right text-emerald-300 font-medium">${line.totalCost.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-emerald-900/30">
+                <td colSpan={3} className="px-4 py-3 text-emerald-300 font-semibold">
+                  Estimated Total / Month
+                </td>
+                <td className="px-4 py-3 text-right text-emerald-300 font-bold text-base">
+                  ${total.toFixed(2)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
-      <p className="text-xs text-emerald-600">
-        Estimates are approximate and exclude free tier credits, data transfer costs, and support plans.
-        Always verify with your cloud provider&apos;s pricing calculator.
-      </p>
-    </div>
+        <div className="mb-6 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-emerald-500 uppercase tracking-wide">
+              Budget ceiling · ${BUDGET_CEILING}/mo
+            </span>
+            <span className="text-emerald-400">{budgetRatio}%</span>
+          </div>
+          <DcyfrProgress value={budgetRatio} variant={budgetVariant} size="md" />
+        </div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <DcyfrButton onClick={handleCopy} variant="brand" size="md">
+            <CopyIcon className="size-4" aria-hidden="true" />
+            Copy breakdown
+          </DcyfrButton>
+          <DcyfrButton onClick={handleReset} variant="ghostly" size="md">
+            <RotateCcwIcon className="size-4" aria-hidden="true" />
+            Reset
+          </DcyfrButton>
+        </div>
+
+        <p className="text-xs text-emerald-600">
+          Estimates are approximate and exclude free-tier credits, data-transfer costs,
+          and support plans. Always verify with your cloud provider&apos;s pricing calculator.
+        </p>
+      </div>
+    </DcyfrCard>
   );
 }
