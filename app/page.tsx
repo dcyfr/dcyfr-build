@@ -39,7 +39,7 @@ export default function HomePage() {
             />
             6 Templates Available Now
           </DcyfrBadge>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
             Ship infrastructure{' '}
             <span className="text-muted-foreground">faster.</span>
           </h1>
@@ -92,7 +92,7 @@ export default function HomePage() {
               className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card/20 border border-border/30 hover:bg-muted/30 hover:border-primary/60/50 transition-all text-center"
             >
               <span className="text-2xl">{cat.icon}</span>
-              <span className="text-sm font-medium text-muted-foreground group-hover:text-white transition-colors">{cat.label}</span>
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">{cat.label}</span>
               <span className="text-xs text-primary">{cat.desc}</span>
             </Link>
           ))}

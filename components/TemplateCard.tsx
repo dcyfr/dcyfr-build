@@ -36,7 +36,7 @@ export function TemplateCard({ template, compact = false }: Readonly<Props>) {
       className="group block bg-card/20 border border-border/30 rounded-xl p-5 hover:bg-muted/30 hover:border-primary/60/50 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
-        <h3 className="font-semibold text-foreground/70 group-hover:text-white transition-colors leading-tight">
+        <h3 className="font-semibold text-foreground/70 group-hover:text-foreground transition-colors leading-tight">
           {template.name}
         </h3>
       </div>
