@@ -43,14 +43,14 @@ export default function TemplatesPage() {
   });
 
   const btnBase = 'px-4 py-1.5 rounded-full text-sm font-medium border transition-colors';
-  const btnActive = 'bg-emerald-700 border-emerald-600 text-white';
-  const btnInactive = 'bg-emerald-900/20 border-emerald-700/40 text-emerald-400 hover:text-emerald-200 hover:border-emerald-600/60';
+  const btnActive = 'bg-muted border-primary/60 text-white';
+  const btnInactive = 'bg-card/20 border-border/40 text-muted-foreground hover:text-muted-foreground hover:border-primary/60/60';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-emerald-100 mb-2">Infrastructure Templates</h1>
-        <p className="text-emerald-400">{templates.length} templates — all MIT licensed and production-validated.</p>
+        <h1 className="text-3xl font-bold text-foreground/70 mb-2">Infrastructure Templates</h1>
+        <p className="text-muted-foreground">{templates.length} templates — all MIT licensed and production-validated.</p>
       </div>
 
       {/* Search */}
@@ -60,7 +60,7 @@ export default function TemplatesPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search templates…"
-          className="w-full sm:max-w-sm bg-emerald-950/60 border border-emerald-700/40 rounded-lg px-4 py-2 text-sm text-emerald-200 placeholder-emerald-600 focus:outline-none focus:border-emerald-500"
+          className="w-full sm:max-w-sm bg-background/60 border border-border/40 rounded-lg px-4 py-2 text-sm text-muted-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50"
         />
       </div>
 
@@ -84,7 +84,7 @@ export default function TemplatesPage() {
         ))}
       </div>
 
-      <p className="text-sm text-emerald-500 mb-6">
+      <p className="text-sm text-primary mb-6">
         Showing {filtered.length} template{filtered.length !== 1 ? 's' : ''}
       </p>
 
@@ -93,7 +93,7 @@ export default function TemplatesPage() {
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-center py-16 text-emerald-500">No templates match your filters.</p>
+        <p className="text-center py-16 text-primary">No templates match your filters.</p>
       )}
     </div>
   );

@@ -21,7 +21,7 @@ export function DownloadButton({ content, filename }: Readonly<Props>) {
   return (
     <button
       onClick={handleDownload}
-      className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+      className="inline-flex items-center gap-2 bg-muted hover:bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
     >
       ↓ Download
     </button>

@@ -22,25 +22,28 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-emerald-800/40">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-emerald-950 to-teal-950" />
+      <section className="relative overflow-hidden border-b border-border/40">
+        {/* Hero gradient: card → primary-tinted dark → background-dark.
+            Previously used emerald-950/teal-950 literal scales; migrated
+            to semantic tokens per identity doc (amber + zinc). */}
+        <div className="absolute inset-0 bg-gradient-to-br from-card via-primary/10 to-background" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
           <DcyfrBadge
             variant="info"
             size="md"
-            className="mb-8 rounded-full border-emerald-600/40 bg-emerald-800/40 text-emerald-300"
+            className="mb-8 rounded-full border-primary/60/40 bg-muted/40 text-muted-foreground"
           >
             <span
-              className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+              className="w-2 h-2 rounded-full bg-primary/80 animate-pulse"
               aria-hidden="true"
             />
             6 Templates Available Now
           </DcyfrBadge>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             Ship infrastructure{' '}
-            <span className="text-emerald-400">faster.</span>
+            <span className="text-muted-foreground">faster.</span>
           </h1>
-          <p className="text-lg sm:text-xl text-emerald-300 max-w-2xl mx-auto mb-10">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
             Battle-tested Docker, Kubernetes, and CI/CD templates for AI-powered apps.
             All MIT licensed, production-validated, with a built-in cost estimator.
           </p>
@@ -56,7 +59,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="border-b border-emerald-800/40 bg-emerald-900/20">
+      <section className="border-b border-border/40 bg-card/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {[
             { value: '6', label: 'Templates' },
@@ -65,11 +68,11 @@ export default function HomePage() {
             { value: 'MIT', label: 'Licensed' },
           ].map(({ value, label }) => (
             <div key={label}>
-              <p className="text-2xl font-bold text-emerald-300">{value}</p>
+              <p className="text-2xl font-bold text-muted-foreground">{value}</p>
               <DcyfrBadge
                 variant="info"
                 size="sm"
-                className="mt-1 border-0 bg-transparent text-emerald-500"
+                className="mt-1 border-0 bg-transparent text-primary"
               >
                 {label}
               </DcyfrBadge>
@@ -80,17 +83,17 @@ export default function HomePage() {
 
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-2xl font-bold text-emerald-100 mb-8">Browse by Category</h2>
+        <h2 className="text-2xl font-bold text-foreground/70 mb-8">Browse by Category</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {CATEGORIES.map((cat) => (
             <Link
               key={cat.key}
               href={`/templates?category=${cat.key}`}
-              className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-emerald-900/20 border border-emerald-700/30 hover:bg-emerald-800/30 hover:border-emerald-600/50 transition-all text-center"
+              className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-card/20 border border-border/30 hover:bg-muted/30 hover:border-primary/60/50 transition-all text-center"
             >
               <span className="text-2xl">{cat.icon}</span>
-              <span className="text-sm font-medium text-emerald-200 group-hover:text-white transition-colors">{cat.label}</span>
-              <span className="text-xs text-emerald-500">{cat.desc}</span>
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-white transition-colors">{cat.label}</span>
+              <span className="text-xs text-primary">{cat.desc}</span>
             </Link>
           ))}
         </div>
@@ -99,9 +102,9 @@ export default function HomePage() {
       {/* Recent */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-emerald-100">Recent Templates</h2>
+          <h2 className="text-2xl font-bold text-foreground/70">Recent Templates</h2>
           <DcyfrButton asChild variant="ghostly" size="sm">
-            <Link href="/templates" className="text-emerald-400">
+            <Link href="/templates" className="text-muted-foreground">
               View all {templates.length} →
             </Link>
           </DcyfrButton>

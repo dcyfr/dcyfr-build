@@ -131,17 +131,17 @@ export function CostEstimator({ templates }: Readonly<Props>) {
   };
 
   return (
-    <DcyfrCard variant="elevated" padding="lg" className="bg-emerald-900/20 border-emerald-700/30">
+    <DcyfrCard variant="elevated" padding="lg" className="bg-card/20 border-border/30">
       <div className="px-6 sm:px-8">
-        <h2 className="text-xl font-semibold text-emerald-100 mb-6">Cost Estimator</h2>
+        <h2 className="text-xl font-semibold text-foreground/70 mb-6">Cost Estimator</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="space-y-2">
-            <DcyfrLabel htmlFor="template" className="text-emerald-500 text-xs uppercase tracking-wide">
+            <DcyfrLabel htmlFor="template" className="text-primary text-xs uppercase tracking-wide">
               Template
             </DcyfrLabel>
             <DcyfrSelect value={templateId} onValueChange={setTemplateId}>
-              <DcyfrSelectTrigger id="template" className="w-full border-emerald-700/40 bg-emerald-950/60 text-emerald-200">
+              <DcyfrSelectTrigger id="template" className="w-full border-border/40 bg-background/60 text-muted-foreground">
                 <DcyfrSelectValue placeholder="Select a template" />
               </DcyfrSelectTrigger>
               <DcyfrSelectContent>
@@ -154,11 +154,11 @@ export function CostEstimator({ templates }: Readonly<Props>) {
             </DcyfrSelect>
           </div>
           <div className="space-y-2">
-            <DcyfrLabel htmlFor="provider" className="text-emerald-500 text-xs uppercase tracking-wide">
+            <DcyfrLabel htmlFor="provider" className="text-primary text-xs uppercase tracking-wide">
               Provider
             </DcyfrLabel>
             <DcyfrSelect value={provider} onValueChange={(v) => setProvider(v as Provider)}>
-              <DcyfrSelectTrigger id="provider" className="w-full border-emerald-700/40 bg-emerald-950/60 text-emerald-200">
+              <DcyfrSelectTrigger id="provider" className="w-full border-border/40 bg-background/60 text-muted-foreground">
                 <DcyfrSelectValue />
               </DcyfrSelectTrigger>
               <DcyfrSelectContent>
@@ -171,11 +171,11 @@ export function CostEstimator({ templates }: Readonly<Props>) {
             </DcyfrSelect>
           </div>
           <div className="space-y-2">
-            <DcyfrLabel htmlFor="workload" className="text-emerald-500 text-xs uppercase tracking-wide">
+            <DcyfrLabel htmlFor="workload" className="text-primary text-xs uppercase tracking-wide">
               Workload Size
             </DcyfrLabel>
             <DcyfrSelect value={workload} onValueChange={(v) => setWorkload(v as Workload)}>
-              <DcyfrSelectTrigger id="workload" className="w-full border-emerald-700/40 bg-emerald-950/60 text-emerald-200">
+              <DcyfrSelectTrigger id="workload" className="w-full border-border/40 bg-background/60 text-muted-foreground">
                 <DcyfrSelectValue />
               </DcyfrSelectTrigger>
               <DcyfrSelectContent>
@@ -189,32 +189,32 @@ export function CostEstimator({ templates }: Readonly<Props>) {
           </div>
         </div>
 
-        <div className="border border-emerald-700/30 rounded-lg overflow-hidden mb-4">
+        <div className="border border-border/30 rounded-lg overflow-hidden mb-4">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-emerald-900/40 border-b border-emerald-800/40">
-                <th className="text-left px-4 py-3 text-emerald-400 font-medium">Service</th>
-                <th className="text-right px-4 py-3 text-emerald-400 font-medium">Unit Cost</th>
-                <th className="text-right px-4 py-3 text-emerald-400 font-medium">Units</th>
-                <th className="text-right px-4 py-3 text-emerald-400 font-medium">Monthly</th>
+              <tr className="bg-card/40 border-b border-border/40">
+                <th className="text-left px-4 py-3 text-muted-foreground font-medium">Service</th>
+                <th className="text-right px-4 py-3 text-muted-foreground font-medium">Unit Cost</th>
+                <th className="text-right px-4 py-3 text-muted-foreground font-medium">Units</th>
+                <th className="text-right px-4 py-3 text-muted-foreground font-medium">Monthly</th>
               </tr>
             </thead>
             <tbody>
               {lines.map((line) => (
-                <tr key={line.service} className="border-b border-emerald-800/30">
-                  <td className="px-4 py-3 text-emerald-200">{line.service}</td>
-                  <td className="px-4 py-3 text-right text-emerald-400">${line.unitCost.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-emerald-400">{line.units}</td>
-                  <td className="px-4 py-3 text-right text-emerald-300 font-medium">${line.totalCost.toFixed(2)}</td>
+                <tr key={line.service} className="border-b border-border/30">
+                  <td className="px-4 py-3 text-muted-foreground">{line.service}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground">${line.unitCost.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground">{line.units}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground font-medium">${line.totalCost.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-emerald-900/30">
-                <td colSpan={3} className="px-4 py-3 text-emerald-300 font-semibold">
+              <tr className="bg-card/30">
+                <td colSpan={3} className="px-4 py-3 text-muted-foreground font-semibold">
                   Estimated Total / Month
                 </td>
-                <td className="px-4 py-3 text-right text-emerald-300 font-bold text-base">
+                <td className="px-4 py-3 text-right text-muted-foreground font-bold text-base">
                   ${total.toFixed(2)}
                 </td>
               </tr>
@@ -224,10 +224,10 @@ export function CostEstimator({ templates }: Readonly<Props>) {
 
         <div className="mb-6 space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-emerald-500 uppercase tracking-wide">
+            <span className="text-primary uppercase tracking-wide">
               Budget ceiling · ${BUDGET_CEILING}/mo
             </span>
-            <span className="text-emerald-400">{budgetRatio}%</span>
+            <span className="text-muted-foreground">{budgetRatio}%</span>
           </div>
           <DcyfrProgress value={budgetRatio} variant={budgetVariant} size="md" />
         </div>
@@ -243,7 +243,7 @@ export function CostEstimator({ templates }: Readonly<Props>) {
           </DcyfrButton>
         </div>
 
-        <p className="text-xs text-emerald-600">
+        <p className="text-xs text-primary">
           Estimates are approximate and exclude free-tier credits, data-transfer costs,
           and support plans. Always verify with your cloud provider&apos;s pricing calculator.
         </p>

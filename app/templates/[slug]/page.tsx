@@ -32,13 +32,17 @@ const DIFFICULTY_COLORS: Record<InfraTemplate['difficulty'], string> = {
   advanced:     'bg-destructive/40 border-destructive/40 text-destructive',
 };
 
+// CATEGORY_COLORS — see components/TemplateCard.tsx for full rationale.
+// docker → secure (blue in theme); kubernetes + monitoring stay as
+// deliberate carveouts (no matching semantic on dcyfr-build palette).
+// eslint-disable-next-line dcyfr-local/no-hardcoded-colors
 const CATEGORY_COLORS: Record<InfraTemplate['category'], string> = {
-  docker:      'bg-blue-900/40 border-blue-700/40 text-blue-300',
+  docker:      'bg-secure/20 border-secure/40 text-secure',
   kubernetes:  'bg-violet-900/40 border-violet-700/40 text-violet-300',
   'ci-cd':     'bg-warning/40 border-warning/40 text-warning',
   monitoring:  'bg-cyan-900/40 border-cyan-700/40 text-cyan-300',
   security:    'bg-destructive/40 border-destructive/40 text-destructive',
-  networking:  'bg-emerald-900/40 border-emerald-700/40 text-emerald-300',
+  networking:  'bg-card/40 border-border/40 text-muted-foreground',
 };
 
 export default async function TemplateDetailPage({ params }: PageProps) {
@@ -71,16 +75,16 @@ export default async function TemplateDetailPage({ params }: PageProps) {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <Link href="/templates" className="inline-flex items-center gap-1 text-sm text-emerald-400 hover:text-emerald-300 mb-8 transition-colors">
+      <Link href="/templates" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground mb-8 transition-colors">
         ← Back to Templates
       </Link>
 
-      <div className="bg-emerald-900/30 border border-emerald-700/40 rounded-xl p-6 sm:p-8 mb-8">
+      <div className="bg-card/30 border border-border/40 rounded-xl p-6 sm:p-8 mb-8">
         <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-emerald-100">{template.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground/70">{template.name}</h1>
           <DownloadButton content={template.content} filename={filename} />
         </div>
-        <p className="text-emerald-200 mb-6">{template.description}</p>
+        <p className="text-muted-foreground mb-6">{template.description}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${CATEGORY_COLORS[template.category]}`}>
@@ -93,7 +97,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
 
         <div className="flex flex-wrap gap-2">
           {template.stack.map((s) => (
-            <span key={s} className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono bg-emerald-950 border border-emerald-700/50 text-emerald-400">
+            <span key={s} className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono bg-background border border-border/50 text-muted-foreground">
               {s}
             </span>
           ))}
@@ -101,7 +105,7 @@ export default async function TemplateDetailPage({ params }: PageProps) {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-emerald-100 mb-4">Template Code</h2>
+        <h2 className="text-lg font-semibold text-foreground/70 mb-4">Template Code</h2>
         <CodePreview content={template.content} filename={filename} />
       </div>
     </div>

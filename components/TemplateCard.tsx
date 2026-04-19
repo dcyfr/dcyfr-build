@@ -6,13 +6,20 @@ interface Props {
   compact?: boolean;
 }
 
+// CATEGORY_COLORS — industry-convention hues (docker/k8s/monitoring) + DCYFR
+// semantic tokens (ci-cd→warning, security→destructive, networking→neutral).
+// The 2 remaining hardcoded scales (violet/cyan) have no matching semantic
+// token on dcyfr-build's identity palette; keeping them as deliberate
+// carveouts per openspec/changes/dcyfr-build-work-hardcoded-colors §3.1.
+// docker=blue migrated to `secure` (which IS blue: 217 91% 60% under theme).
+// eslint-disable-next-line dcyfr-local/no-hardcoded-colors
 const CATEGORY_COLORS: Record<InfraTemplate['category'], string> = {
-  docker:      'bg-blue-900/40 border-blue-700/40 text-blue-300',
+  docker:      'bg-secure/20 border-secure/40 text-secure',
   kubernetes:  'bg-violet-900/40 border-violet-700/40 text-violet-300',
   'ci-cd':     'bg-warning/40 border-warning/40 text-warning',
   monitoring:  'bg-cyan-900/40 border-cyan-700/40 text-cyan-300',
   security:    'bg-destructive/40 border-destructive/40 text-destructive',
-  networking:  'bg-emerald-900/40 border-emerald-700/40 text-emerald-300',
+  networking:  'bg-card/40 border-border/40 text-muted-foreground',
 };
 
 const DIFFICULTY_COLORS: Record<InfraTemplate['difficulty'], string> = {
@@ -25,10 +32,10 @@ export function TemplateCard({ template, compact = false }: Readonly<Props>) {
   return (
     <Link
       href={`/templates/${template.slug}`}
-      className="group block bg-emerald-900/20 border border-emerald-700/30 rounded-xl p-5 hover:bg-emerald-800/30 hover:border-emerald-600/50 transition-all"
+      className="group block bg-card/20 border border-border/30 rounded-xl p-5 hover:bg-muted/30 hover:border-primary/60/50 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
-        <h3 className="font-semibold text-emerald-100 group-hover:text-white transition-colors leading-tight">
+        <h3 className="font-semibold text-foreground/70 group-hover:text-white transition-colors leading-tight">
           {template.name}
         </h3>
       </div>
@@ -44,17 +51,17 @@ export function TemplateCard({ template, compact = false }: Readonly<Props>) {
 
       {!compact && (
         <>
-          <p className="text-sm text-emerald-400 line-clamp-2 mb-3">{template.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{template.description}</p>
           <div className="flex flex-wrap gap-1.5">
             {template.stack.map((s) => (
-              <span key={s} className="text-xs text-emerald-500 font-mono">{s}</span>
+              <span key={s} className="text-xs text-primary font-mono">{s}</span>
             ))}
           </div>
         </>
       )}
 
       {compact && (
-        <p className="text-xs text-emerald-500 line-clamp-1">{template.stack.join(' · ')}</p>
+        <p className="text-xs text-primary line-clamp-1">{template.stack.join(' · ')}</p>
       )}
     </Link>
   );
