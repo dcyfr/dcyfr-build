@@ -27,17 +27,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 const DIFFICULTY_COLORS: Record<InfraTemplate['difficulty'], string> = {
-  beginner:     'bg-green-900/40 border-green-700/40 text-green-300',
-  intermediate: 'bg-yellow-900/40 border-yellow-700/40 text-yellow-300',
-  advanced:     'bg-red-900/40 border-red-700/40 text-red-300',
+  beginner:     'bg-success/40 border-success/40 text-success',
+  intermediate: 'bg-warning/40 border-warning/40 text-warning',
+  advanced:     'bg-destructive/40 border-destructive/40 text-destructive',
 };
 
 const CATEGORY_COLORS: Record<InfraTemplate['category'], string> = {
   docker:      'bg-blue-900/40 border-blue-700/40 text-blue-300',
   kubernetes:  'bg-violet-900/40 border-violet-700/40 text-violet-300',
-  'ci-cd':     'bg-amber-900/40 border-amber-700/40 text-amber-300',
+  'ci-cd':     'bg-warning/40 border-warning/40 text-warning',
   monitoring:  'bg-cyan-900/40 border-cyan-700/40 text-cyan-300',
-  security:    'bg-red-900/40 border-red-700/40 text-red-300',
+  security:    'bg-destructive/40 border-destructive/40 text-destructive',
   networking:  'bg-emerald-900/40 border-emerald-700/40 text-emerald-300',
 };
 
