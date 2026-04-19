@@ -1,0 +1,8 @@
+{
+  "repo_notes": [
+    {
+      "content": "Build system and tooling for DCYFR projects. Document the build configuration, bundling strategies, optimization techniques, asset handling, and development server setup.",
+      "author": "DCYFR Engineering"
+    }
+  ]
+}
