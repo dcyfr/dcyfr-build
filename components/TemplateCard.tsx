@@ -10,9 +10,10 @@ interface Props {
 // semantic tokens (ci-cd→warning, security→destructive, networking→neutral).
 // The 2 remaining hardcoded scales (violet/cyan) have no matching semantic
 // token on dcyfr-build's identity palette; keeping them as deliberate
-// carveouts per openspec/changes/dcyfr-build-work-hardcoded-colors §3.1.
+// carveouts per openspec/changes/archive/2026-04-19-dcyfr-build-work-hardcoded-colors §3.1.
 // docker=blue migrated to `secure` (which IS blue: 217 91% 60% under theme).
-// eslint-disable-next-line dcyfr-local/no-hardcoded-colors
+// Lint exception: the workspace-level `scripts/polish-loop/lint-design-tokens.mjs`
+// informational rule tolerates these as carveouts; strict backstop stays green.
 const CATEGORY_COLORS: Record<InfraTemplate['category'], string> = {
   docker:      'bg-secure/20 border-secure/40 text-secure',
   kubernetes:  'bg-violet-900/40 border-violet-700/40 text-violet-300',

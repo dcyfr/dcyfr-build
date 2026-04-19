@@ -35,7 +35,7 @@ const DIFFICULTY_COLORS: Record<InfraTemplate['difficulty'], string> = {
 // CATEGORY_COLORS — see components/TemplateCard.tsx for full rationale.
 // docker → secure (blue in theme); kubernetes + monitoring stay as
 // deliberate carveouts (no matching semantic on dcyfr-build palette).
-// eslint-disable-next-line dcyfr-local/no-hardcoded-colors
+// Lint exception recorded in the archived openspec change.
 const CATEGORY_COLORS: Record<InfraTemplate['category'], string> = {
   docker:      'bg-secure/20 border-secure/40 text-secure',
   kubernetes:  'bg-violet-900/40 border-violet-700/40 text-violet-300',
